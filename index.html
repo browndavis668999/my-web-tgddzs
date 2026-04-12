@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单统计助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .input-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: "Consolas", "Monaco", monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .file-upload {
+            margin-bottom: 15px;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        .file-upload label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        .file-upload label:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .file-upload .file-name {
+            margin-left: 15px;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-export {
+            background: #28a745;
+            color: white;
+        }
+        .btn-export:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .output-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 100px;
+        }
+        .output-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        #output {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #333;
+        }
+        .dankou {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ddd;
+        }
+        .dankou:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .dankou-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dankou-total {
+            font-size: 14px;
+            color: #666;
+            font-weight: normal;
+        }
+        .item-line {
+            margin-left: 0;
+            margin-bottom: 5px;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn-action {
+            float: right;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .btn-action:hover {
+            background: #5a6fd6;
+        }
+        .btn-action.success {
+            background: #28a745;
+        }
+        .error-list {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .error-list h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .error-list ul {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 13px;
+        }
+        .history-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .history-section h4 {
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .history-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #e9ecef;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .history-item:hover {
+            background: #667eea;
+            color: white;
+        }
+        .history-item .delete {
+            margin-left: 8px;
+            color: #999;
+            font-size: 10px;
+        }
+        .history-item .delete:hover {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>订单统计助手</h1>
+            <p>支持档口：4m、6m、创辉、阳阳、灿灿、琛光、红运、品宣、ch、苹果</p>
+        </div>
+        <div class="content">
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.txt" onchange="handleFileUpload(event)">
+                <label for="fileInput">📁 导入Excel/CSV文件</label>
+                <span class="file-name" id="fileName"></span>
+            </div>
+            <div class="input-section">
+                <label>请粘贴订单数据（支持Tab分隔或空格分隔）：</label>
+                <textarea id="inputData" placeholder="商家编码	商家编码（属性）	规格	成本价	数量
+红运9593		深蓝色...	0	1"></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="processData()">统计订单</button>
+                <button class="btn-export" onclick="exportExcel()">📊 导出Excel</button>
+                <button class="btn-secondary" onclick="clearAll()">清空</button>
+            </div>
+            <div id="errorList"></div>
+            <div class="output-section">
+                <h3>统计结果：</h3>
+                <button class="btn-action" id="copyBtn" onclick="copyResult()">一键复制</button>
+                <div id="output"></div>
+            </div>
+            <div class="history-section" id="historySection" style="display:none;">
+                <h4>历史记录：</h4>
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script>
+        const dankouPrefixes = ['4m', '6m', '创辉', '阳阳', '灿灿', '琛光', '红运', '品宣', 'ch', '苹果'];
+        const dankouOrder = ['4m', '6m', '创辉', '阳阳', '灿灿', '琛光', '红运', '品宣', 'ch', '苹果', '其他'];
+        
+        const colorMapping = {
+            '浅蓝': '浅蓝色', '深蓝': '深蓝色', '藏蓝': '藏蓝色', '藏青': '藏青色',
+            '卡其': '卡其色', '粉': '粉色', '兰': '蓝色', '黑灰': '黑灰色',
+            '灰': '灰色', '白': '白色', '米': '米白色', '杏': '杏色',
+            '奶杏': '奶杏色', '卡': '卡其色', '咖': '咖啡色', '紫': '紫色',
+            '绿': '绿色', '红': '红色', '黄': '黄色', '枣红': '枣红色',
+            '牛仔蓝': '牛仔蓝', '怀旧蓝': '怀旧蓝', '烟灰': '烟灰色', '高级灰': '高级灰',
+            '石灰白': '石灰白', '麻本': '麻本色', '藕粉': '藕粉色', '卡灰': '卡灰色'
+        };
+
+        function normalizeColor(color) {
+            for (let [key, value] of Object.entries(colorMapping)) {
+                if (color.includes(key)) {
+                    return value;
+                }
+            }
+            return color;
+        }
+
+        function extractDankou(code) {
+            code = code.replace(/\s+/g, '').trim();
+            for (let prefix of dankouPrefixes) {
+                if (code.toLowerCase().startsWith(prefix.toLowerCase())) {
+                    return prefix;
+                }
+            }
+            return '其他';
+        }
+
+        function extractHuohao(code, dankou) {
+            code = code.replace(/\s+/g, '').trim();
+            if (dankou === '其他') return code;
+            return code.substring(dankou.length).trim();
+        }
+
+        function extractColor(spec) {
+            if (!spec) return '默认';
+            let color = spec.split(/[，,]/)[0];
+            color = color.replace(/小个子款|常规款|加长款|加绒款|不加绒|长裤款|九分裤|单款|裤长\d+厘米|适合\d+厘米|九分长度|夏季薄款|加绒加厚|时尚字母款/g, '');
+            color = color.replace(/【.*?】|\[.*?\]/g, '');
+            color = color.replace(/\s+/g, ' ').trim();
+            color = normalizeColor(color);
+            return color || '默认';
+        }
+
+        function extractSize(spec) {
+            if (!spec) return '均码';
+            
+            let parts = spec.split(/[，,]/);
+            if (parts.length > 1) {
+                let sizePart = parts[1];
+                let match = sizePart.match(/(5XL|4XL|3XL|2XL|XXL|XL|XS|S|M|L)/i);
+                if (match) return match[1].toUpperCase().replace('XXL', '2XL');
+                
+                let numMatch = sizePart.match(/(\d{2})/);
+                if (numMatch) return numMatch[1];
+            }
+
+            let match = spec.match(/[，,]\s*(5XL|4XL|3XL|2XL|XXL|XL|XS|S|M|L)/i);
+            if (match) return match[1].toUpperCase().replace('XXL', '2XL');
+
+            let bracketMatch = spec.match(/\[(\d{2})\[/);
+            if (bracketMatch) return bracketMatch[1];
+
+            let bracketNumMatch = spec.match(/\[(\d{2,3})/);
+            if (bracketNumMatch) return bracketNumMatch[1];
+
+            let numMatch = spec.match(/[，,]\s*(\d{2,3})/);
+            if (numMatch) return numMatch[1];
+
+            if (spec.includes('均码')) return '均码';
+
+            return '均码';
+        }
+
+        function parseLine(line, lineNum) {
+            line = line.trim();
+            if (!line) return null;
+
+            if (line.includes('商家编码') && line.includes('规格')) return null;
+
+            let parts = line.split('\t');
+            
+            if (parts.length < 4) {
+                let match = line.match(/^(.+?)\s+(.+?)\s+0\s+(\d+)\s*$/);
+                if (match) {
+                    return { code: match[1].trim(), spec: match[2].trim(), quantity: parseInt(match[3]) || 1 };
+                }
+
+                let parts2 = line.split(/\s+/);
+                if (parts2.length >= 3) {
+                    let lastNum = parseInt(parts2[parts2.length - 1]);
+                    if (!isNaN(lastNum)) {
+                        let code = parts2[0];
+                        let spec = parts2.slice(1, -2).join(' ');
+                        return { code, spec, quantity: lastNum };
+                    }
+                }
+                return { error: true, line: lineNum, content: line.substring(0, 50) + '...' };
+            }
+
+            let code = parts[0] ? parts[0].trim() : '';
+            let spec = parts[2] ? parts[2].trim() : '';
+            let quantity = parseInt(parts[parts.length - 1]) || 1;
+
+            if (!code) return { error: true, line: lineNum, content: line.substring(0, 50) + '...' };
+
+            return { code, spec, quantity };
+        }
+
+        let currentGroups = {};
+        let currentDankouGroups = {};
+        let currentDankouCount = 0;
+        let currentItemCount = 0;
+        let currentTotalQty = 0;
+
+        function processData() {
+            const input = document.getElementById('inputData').value.trim();
+            if (!input) {
+                alert('请输入订单数据！');
+                return;
+            }
+
+            const lines = input.split('\n');
+            const orders = [];
+            const errors = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                let parsed = parseLine(lines[i], i + 1);
+                if (!parsed) continue;
+                if (parsed.error) {
+                    errors.push(parsed);
+                    continue;
+                }
+
+                let dankou = extractDankou(parsed.code);
+                let huohao = extractHuohao(parsed.code, dankou);
+                let color = extractColor(parsed.spec);
+                let size = extractSize(parsed.spec);
+
+                orders.push({ dankou, huohao, color, size, quantity: parsed.quantity });
+            }
+
+            if (errors.length > 0) {
+                document.getElementById('errorList').innerHTML = `
+                    <div class="error-list">
+                        <h4>⚠️ 有 ${errors.length} 行数据解析失败：</h4>
+                        <ul>${errors.map(e => `<li>第 ${e.line} 行: ${e.content}</li>`).join('')}</ul>
+                    </div>
+                `;
+            } else {
+                document.getElementById('errorList').innerHTML = '';
+            }
+
+            if (orders.length === 0) {
+                alert('未能解析到有效数据，请检查格式！');
+                return;
+            }
+
+            currentGroups = {};
+            currentTotalQty = 0;
+            
+            for (let order of orders) {
+                let key = `${order.dankou}|${order.huohao}|${order.color}`;
+                if (!currentGroups[key]) {
+                    currentGroups[key] = { dankou: order.dankou, huohao: order.huohao, color: order.color, sizes: {} };
+                }
+                if (currentGroups[key].sizes[order.size]) {
+                    currentGroups[key].sizes[order.size] += order.quantity;
+                } else {
+                    currentGroups[key].sizes[order.size] = order.quantity;
+                }
+                currentTotalQty += order.quantity;
+            }
+
+            currentDankouGroups = {};
+            for (let key in currentGroups) {
+                let d = currentGroups[key].dankou;
+                if (!currentDankouGroups[d]) currentDankouGroups[d] = [];
+                currentDankouGroups[d].push(currentGroups[key]);
+            }
+
+            let output = '';
+            currentDankouCount = 0;
+            currentItemCount = 0;
+
+            for (let dankou of dankouOrder) {
+                if (!currentDankouGroups[dankou]) continue;
+
+                currentDankouCount++;
+                let dankouTotal = 0;
+                
+                currentDankouGroups[dankou].sort((a, b) => a.huohao.localeCompare(b.huohao, 'zh-CN'));
+                
+                let itemsHtml = '';
+                for (let item of currentDankouGroups[dankou]) {
+                    let sizeStr = Object.entries(item.sizes).map(([size, qty]) => `${size} × ${qty}`).join('，');
+                    itemsHtml += `<div class="item-line">${item.huohao} ${item.color} ${sizeStr}；</div>`;
+                    currentItemCount++;
+                    dankouTotal += Object.values(item.sizes).reduce((a, b) => a + b, 0);
+                }
+                
+                output += `<div class="dankou"><div class="dankou-name">${dankou}<span class="dankou-total">共 ${dankouTotal} 件</span></div>${itemsHtml}</div>`;
+            }
+
+            output += `<div class="summary">共 ${currentDankouCount} 个档口，${currentItemCount} 条明细记录，${currentTotalQty} 件商品。</div>`;
+
+            document.getElementById('output').innerHTML = output;
+            saveToHistory(input);
+        }
+
+        function clearAll() {
+            document.getElementById('inputData').value = '';
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('errorList').innerHTML = '';
+            document.getElementById('fileName').textContent = '';
+            currentGroups = {};
+        }
+
+        function copyResult() {
+            const output = document.getElementById('output');
+            const text = output.innerText || output.textContent;
+            navigator.clipboard.writeText(text).then(() => showCopySuccess()).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showCopySuccess();
+            });
+        }
+
+        function showCopySuccess() {
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = '已复制 ✓';
+            btn.classList.add('success');
+            setTimeout(() => { btn.textContent = '一键复制'; btn.classList.remove('success'); }, 2000);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            document.getElementById('fileName').textContent = file.name;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    
+                    let textData = jsonData.map(row => row.join('\t')).join('\n');
+                    document.getElementById('inputData').value = textData;
+                    processData();
+                } catch (err) {
+                    const reader2 = new FileReader();
+                    reader2.onload = function(e2) {
+                        document.getElementById('inputData').value = e2.target.result;
+                        processData();
+                    };
+                    reader2.readAsText(file);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportExcel() {
+            if (Object.keys(currentGroups).length === 0) {
+                alert('请先统计订单数据！');
+                return;
+            }
+
+            let exportData = [];
+            for (let dankou of dankouOrder) {
+                if (!currentDankouGroups[dankou]) continue;
+                for (let item of currentDankouGroups[dankou]) {
+                    for (let [size, qty] of Object.entries(item.sizes)) {
+                        exportData.push({ 档口: dankou, 货号: item.huohao, 颜色: item.color, 尺码: size, 数量: qty });
+                    }
+                }
+            }
+            
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '订单统计');
+            XLSX.writeFile(wb, '订单统计_' + new Date().toLocaleDateString('zh-CN').replace(/\//g, '-') + '.xlsx');
+        }
+
+        function saveToHistory(data) {
+            if (!data.trim()) return;
+            let history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            const lineCount = data.split('\n').filter(l => l.trim()).length;
+            const preview = data.substring(0, 50).replace(/\s+/g, ' ');
+            
+            const existing = history.find(h => h.preview === preview);
+            if (existing) {
+                history = history.filter(h => h.preview !== preview);
+            }
+            
+            history.unshift({
+                data: data,
+                preview: preview,
+                lines: lineCount,
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            });
+            
+            if (history.length > 10) history = history.slice(0, 10);
+            
+            try {
+                localStorage.setItem('orderHistory', JSON.stringify(history));
+            } catch (e) {
+                history = history.slice(0, 5);
+                localStorage.setItem('orderHistory', JSON.stringify(history));
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            const section = document.getElementById('historySection');
+            const list = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            list.innerHTML = history.map((h, i) => 
+                `<span class="history-item" onclick="loadHistory(${i})" title="${h.lines}行">${h.time} (${h.lines}行)<span class="delete" onclick="deleteHistory(event, ${i})">✕</span></span>`
+            ).join('');
+        }
+
+        function loadHistory(index) {
+            const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            if (history[index]) {
+                document.getElementById('inputData').value = history[index].data;
+                processData();
+            }
+        }
+
+        function deleteHistory(event, index) {
+            event.stopPropagation();
+            let history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            history.splice(index, 1);
+            localStorage.setItem('orderHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        document.getElementById('inputData').addEventListener('paste', function(e) {
+            setTimeout(() => { if (this.value.trim()) processData(); }, 100);
+        });
+
+        renderHistory();
+    </script>
+</body>
+</html>
