@@ -152,18 +152,11 @@
             padding-bottom: 15px;
             border-bottom: 1px dashed #ddd;
         }
-        .dankou:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
         .dankou-name {
             font-weight: bold;
             font-size: 18px;
             color: #667eea;
             margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         .dankou-note {
             font-size: 13px;
@@ -507,7 +500,7 @@
                     dankouTotal += Object.values(item.sizes).reduce((a, b) => a + b, 0);
                 }
                 
-                output += `<div class="dankou"><div class="dankou-name">${dankou}</div><div class="dankou-note">可以配临近码</div>${itemsHtml}<div class="dankou-subtotal">共 ${dankouTotal} 件</div></div>`;
+                output += `<div class=\"dankou\"><div class=\"dankou-name\">${dankou}</div><div class=\"dankou-note\">可以配临近码</div>${itemsHtml}<div class=\"dankou-subtotal\">共 ${dankouTotal} 件</div></div>`;
             }
 
             output += `<div class="summary">共 ${currentDankouCount} 个档口，${currentItemCount} 条明细记录，${currentTotalQty} 件商品。</div>`;
@@ -526,7 +519,9 @@
 
         function copyResult() {
             const output = document.getElementById('output');
-            const text = output.innerText || output.textContent;
+            let text = output.innerText || output.textContent;
+            // 在每个"共 X 件"后面添加空行
+            text = text.replace(/(共 \d+ 件)/g, '$1\n');
             navigator.clipboard.writeText(text).then(() => showCopySuccess()).catch(() => {
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
