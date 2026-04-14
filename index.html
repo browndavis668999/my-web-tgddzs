@@ -160,10 +160,21 @@
             font-weight: bold;
             font-size: 18px;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .dankou-note {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .dankou-subtotal {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            text-align: right;
         }
         .dankou-total {
             font-size: 14px;
@@ -296,22 +307,20 @@
         const dankouPrefixes = ['4m', '6m', '创辉', '阳阳', '灿灿', '琛光', '红运', '品宣', 'ch', '苹果'];
         const dankouOrder = ['4m', '6m', '创辉', '阳阳', '灿灿', '琛光', '红运', '品宣', 'ch', '苹果', '其他'];
         
-        const colorMapping = {
-            '浅蓝': '浅蓝色', '深蓝': '深蓝色', '藏蓝': '藏蓝色', '藏青': '藏青色',
-            '卡其': '卡其色', '粉': '粉色', '兰': '蓝色', '黑灰': '黑灰色',
-            '灰': '灰色', '白': '白色', '米': '米白色', '杏': '杏色',
-            '奶杏': '奶杏色', '卡': '卡其色', '咖': '咖啡色', '紫': '紫色',
-            '绿': '绿色', '红': '红色', '黄': '黄色', '枣红': '枣红色',
-            '牛仔蓝': '牛仔蓝', '怀旧蓝': '怀旧蓝', '烟灰': '烟灰色', '高级灰': '高级灰',
-            '石灰白': '石灰白', '麻本': '麻本色', '藕粉': '藕粉色', '卡灰': '卡灰色'
-        };
+        // 颜色标准化映射已移除，保留原始颜色
+        // 如需恢复标准化，请参考以下映射：
+        // const colorMapping = {
+        //     '浅蓝': '浅蓝色', '深蓝': '深蓝色', '藏蓝': '藏蓝色', '藏青': '藏青色',
+        //     '卡其': '卡其色', '粉': '粉色', '兰': '蓝色', '黑灰': '黑灰色',
+        //     '灰': '灰色', '白': '白色', '米': '米白色', '杏': '杏色',
+        //     '奶杏': '奶杏色', '卡': '卡其色', '咖': '咖啡色', '紫': '紫色',
+        //     '绿': '绿色', '红': '红色', '黄': '黄色', '枣红': '枣红色',
+        //     '牛仔蓝': '牛仔蓝', '怀旧蓝': '怀旧蓝', '烟灰': '烟灰色', '高级灰': '高级灰',
+        //     '石灰白': '石灰白', '麻本': '麻本色', '藕粉': '藕粉色', '卡灰': '卡灰色'
+        // };
 
         function normalizeColor(color) {
-            for (let [key, value] of Object.entries(colorMapping)) {
-                if (color.includes(key)) {
-                    return value;
-                }
-            }
+            // 不做任何转换，保留原始颜色
             return color;
         }
 
@@ -498,7 +507,7 @@
                     dankouTotal += Object.values(item.sizes).reduce((a, b) => a + b, 0);
                 }
                 
-                output += `<div class="dankou"><div class="dankou-name">${dankou}<span class="dankou-total">共 ${dankouTotal} 件</span></div>${itemsHtml}</div>`;
+                output += `<div class="dankou"><div class="dankou-name">${dankou}</div><div class="dankou-note">可以配临近码</div>${itemsHtml}<div class="dankou-subtotal">共 ${dankouTotal} 件</div></div>`;
             }
 
             output += `<div class="summary">共 ${currentDankouCount} 个档口，${currentItemCount} 条明细记录，${currentTotalQty} 件商品。</div>`;
