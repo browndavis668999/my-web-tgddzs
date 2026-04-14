@@ -517,12 +517,22 @@
             currentGroups = {};
         }
 
-        function copyResult() {
+function copyResult() {
             const output = document.getElementById('output');
             let text = output.innerText || output.textContent;
-            // 在每个"共 X 件"后面添加空行
-            text = text.replace(/(共 \d+ 件)/g, '$1\n');
-            navigator.clipboard.writeText(text).then(() => showCopySuccess()).catch(() => {
+            // 把所有换行符标准化为\n
+            text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            // 在每个包含 共 X 件 的行后面添加空行
+            let lines = text.split('\n');
+            let result = [];
+            for (let i = 0; i < lines.length; i++) {
+                result.push(lines[i]);
+                // 如果这行包含 共 X 件 且不是最后一行（汇总行），就加空行
+                if (lines[i].includes('共') && lines[i].includes('件') && i < lines.length - 1 && !lines[i].includes('个档口')) {
+                    result.push('');
+                }
+            }
+            navigator.clipboard.writeText(result.join('\n')).then(() => showCopySuccess()).catch(() => {
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
